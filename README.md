@@ -1,4 +1,4 @@
-# JPAShoppingMVC – Bài tập 01 làm lại bằng JPA
+# JPAShoppingMVC – Bài tập 02
 
 Servlet/JSP (Jakarta EE 10) · JPA / Hibernate 7.4 + Hibernate Validator · SQL Server · Maven · Tomcat 10.1
 
