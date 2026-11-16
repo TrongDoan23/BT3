@@ -3,16 +3,10 @@ package vn.iotstar.entity;
 import java.io.Serializable;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "Videos")
 @NamedQuery(name = "Video.findAll", query = "SELECT v FROM Video v")
-@Getter
-@Setter
-@NoArgsConstructor
 public class Video implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -39,4 +33,63 @@ public class Video implements Serializable {
     @ManyToOne
     @JoinColumn(name = "cate_id")
     private Category category;
+
+    public Video() {
+    }
+
+    public String getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(String videoId) {
+        this.videoId = videoId;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }

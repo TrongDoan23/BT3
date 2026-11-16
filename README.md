@@ -1,4 +1,4 @@
-# JPAShoppingMVC – Bài tập 02
+# JPAShoppingMVC – Bài tập 01 làm lại bằng JPA
 
 Servlet/JSP (Jakarta EE 10) · JPA / Hibernate 7.4 + Hibernate Validator · SQL Server · Maven · Tomcat 10.1
 
@@ -15,3 +15,11 @@ Tài khoản mẫu (mật khẩu 123456): `admin` (roleid 1), `manager` (2), `us
 
 ## Cấu trúc
 `entity` → `dao` → `service` → `controller` (JSP trong `WEB-INF/views`).
+
+## Bài 02 – bổ sung
+1. **Kích hoạt tài khoản bằng OTP**: đăng ký → tài khoản `active = 0` → gửi OTP 6 số qua email → `/verify-otp`. OTP hết hạn sau 5 phút, tối đa 5 lần nhập sai, gửi lại cách nhau 60 giây.
+2. **Mật khẩu mã hóa BCrypt** + **đăng xuất** (`/logout`: hủy session, xóa cookie và token "nhớ tôi" trong DB). Cookie "nhớ tôi" là token ngẫu nhiên, không chứa username.
+3. **Quên mật khẩu**: `/forgot-password` → gửi OTP → `/reset-password` nhập OTP + mật khẩu mới.
+
+Cấu hình email: sửa `src/main/resources/mail.properties` hoặc đặt biến môi trường `MAIL_USER`, `MAIL_PASSWORD` (Gmail dùng App password). Nếu chưa cấu hình, OTP được in ra console Tomcat để test.
+DB cũ: chạy `sql/update_bai02.sql`. DB mới: chạy `sql/JPAShopping.sql`.

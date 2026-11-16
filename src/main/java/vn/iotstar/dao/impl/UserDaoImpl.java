@@ -29,16 +29,35 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User get(String username) {
+    public void update(User user) {
         EntityManager em = JPAConfig.getEntityManager();
+        EntityTransaction trans = em.getTransaction();
         try {
-            TypedQuery<User> q = em.createQuery("SELECT u FROM User u WHERE u.userName = :username", User.class);
-            q.setParameter("username", username);
-            List<User> list = q.getResultList();
-            return list.isEmpty() ? null : list.get(0);
+            trans.begin();
+            em.merge(user);
+            trans.commit();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            if (trans.isActive()) trans.rollback();
+            throw e;
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public User get(String username) {
+        return findOne("userName", username);
+    }
+
+    @Override
+    public User getByEmail(String email) {
+        return findOne("email", email);
+    }
+
+    @Override
+    public User getByRememberToken(String token) {
+        return findOne("rememberToken", token);
     }
 
     @Override
@@ -54,6 +73,20 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean checkExistPhone(String phone) {
         return exists("phone", phone);
+    }
+
+    private User findOne(String field, String value) {
+        if (value == null) return null;
+        EntityManager em = JPAConfig.getEntityManager();
+        try {
+            TypedQuery<User> q = em.createQuery("SELECT u FROM User u WHERE u." + field + " = :v", User.class);
+            q.setParameter("v", value);
+            q.setMaxResults(1);
+            List<User> list = q.getResultList();
+            return list.isEmpty() ? null : list.get(0);
+        } finally {
+            em.close();
+        }
     }
 
     private boolean exists(String field, String value) {

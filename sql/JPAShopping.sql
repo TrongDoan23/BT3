@@ -11,7 +11,13 @@ CREATE TABLE Users(
   avatar nvarchar(255) NULL,
   roleid int NOT NULL,
   phone nvarchar(20) NULL,
-  createddate date NULL
+  createddate date NULL,
+  active bit NULL,
+  otp nvarchar(100) NULL,
+  otp_purpose nvarchar(20) NULL,
+  otp_expiry datetime2 NULL,
+  otp_attempts int NULL,
+  remember_token nvarchar(100) NULL
 );
 GO
 CREATE TABLE Category(
@@ -21,9 +27,10 @@ CREATE TABLE Category(
 );
 GO
 -- roleid: 1 = admin, 2 = manager, 5 = người dùng thường
-INSERT INTO Users(email,username,fullname,[password],roleid,phone,createddate) VALUES
- (N'admin@gmail.com',  N'admin',   N'Quản trị viên', N'123456', 1, N'0900000001', GETDATE()),
- (N'manager@gmail.com',N'manager', N'Quản lý',       N'123456', 2, N'0900000002', GETDATE()),
- (N'user@gmail.com',   N'user',    N'Người dùng',    N'123456', 5, N'0900000003', GETDATE());
+-- Mật khẩu mẫu ở dạng thường; sẽ tự động được hash (BCrypt) ở lần đăng nhập đầu tiên.
+INSERT INTO Users(email,username,fullname,[password],roleid,phone,createddate,active) VALUES
+ (N'admin@gmail.com',  N'admin',   N'Quản trị viên', N'123456', 1, N'0900000001', GETDATE(), 1),
+ (N'manager@gmail.com',N'manager', N'Quản lý',       N'123456', 2, N'0900000002', GETDATE(), 1),
+ (N'user@gmail.com',   N'user',    N'Người dùng',    N'123456', 5, N'0900000003', GETDATE(), 1);
 INSERT INTO Category(cate_name,icons) VALUES (N'Quần áo nam',N'avatar.png'),(N'Quần áo nữ',N'avatar.png');
 GO

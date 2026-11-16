@@ -11,8 +11,10 @@
 <body>
 <main class="card auth">
   <h1>Đăng nhập</h1>
-  <c:if test="${param.registered == '1'}"><p class="alert ok">Đăng ký thành công. Hãy đăng nhập.</p></c:if>
-  <c:if test="${alert != null}"><p class="alert"><c:out value="${alert}"/></p></c:if>
+  <c:if test="${param.verified == '1'}"><p class="alert ok">Kích hoạt tài khoản thành công. Hãy đăng nhập.</p></c:if>
+  <c:if test="${param.reset == '1'}"><p class="alert ok">Đổi mật khẩu thành công. Hãy đăng nhập.</p></c:if>
+  <c:if test="${alert != null}"><p class="alert"><c:out value="${alert}"/>
+    <c:if test="${activateEmail != null}"><a href="${pageContext.request.contextPath}/verify-otp?email=${activateEmail}">Kích hoạt ngay</a></c:if></p></c:if>
   <form action="${pageContext.request.contextPath}/login" method="post">
     <label for="username">Tài khoản</label>
     <input type="text" id="username" name="username" autocomplete="username" required>
@@ -21,6 +23,7 @@
     <label class="check"><input type="checkbox" name="remember"> Nhớ tôi</label>
     <button type="submit" class="btn">Đăng nhập</button>
   </form>
+  <p class="muted"><a href="${pageContext.request.contextPath}/forgot-password">Quên mật khẩu?</a></p>
   <p class="muted">Chưa có tài khoản? <a href="${pageContext.request.contextPath}/register">Đăng ký</a></p>
 </main>
 </body>
