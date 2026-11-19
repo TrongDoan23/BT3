@@ -3,14 +3,17 @@ package vn.iotstar.controller;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import vn.iotstar.entity.User;
+import vn.iotstar.form.LoginForm;
 import vn.iotstar.service.UserService;
 import vn.iotstar.service.impl.UserServiceImpl;
 import vn.iotstar.util.Constant;
+import vn.iotstar.util.ValidationUtil;
 
 @WebServlet(urlPatterns = "/login")
 public class LoginController extends HttpServlet {
@@ -48,17 +51,18 @@ public class LoginController extends HttpServlet {
         resp.setContentType("text/html;charset=UTF-8");
         req.setCharacterEncoding("UTF-8");
 
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
         boolean remember = "on".equals(req.getParameter("remember"));
-
-        if (username == null || password == null || username.isBlank() || password.isEmpty()) {
-            req.setAttribute("alert", "Tài khoản hoặc mật khẩu không được rỗng");
+        LoginForm form = new LoginForm(req.getParameter("username"), req.getParameter("password"));
+        Map<String, String> errors = ValidationUtil.validate(form);
+        if (!errors.isEmpty()) {
+            req.setAttribute("errors", errors);
             req.getRequestDispatcher(VIEW).forward(req, resp);
             return;
         }
+        String username = form.getUsername();
+        String password = form.getPassword();
 
-        User user = service.login(username.trim(), password);
+        User user = service.login(username, password);
         if (user == null) {
             req.setAttribute("alert", "Tài khoản hoặc mật khẩu không đúng");
             req.getRequestDispatcher(VIEW).forward(req, resp);

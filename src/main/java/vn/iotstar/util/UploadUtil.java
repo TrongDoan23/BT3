@@ -15,6 +15,18 @@ public class UploadUtil {
 
     private UploadUtil() {}
 
+    /** Không chọn file => hợp lệ; có chọn file thì phải đúng đuôi cho phép. */
+    public static boolean isAllowed(Part part, String allowedExt) {
+        if (part == null || part.getSize() == 0 || part.getSubmittedFileName() == null) return true;
+        String n = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+        int idx = n.lastIndexOf('.');
+        return idx >= 0 && n.substring(idx + 1).toLowerCase().matches(allowedExt);
+    }
+
+    public static boolean hasFile(Part part) {
+        return part != null && part.getSize() > 0;
+    }
+
     public static String saveImage(Part part) throws IOException {
         return save(part, IMAGE_EXT);
     }

@@ -37,6 +37,13 @@
       <version>3.0.1</version>
     </dependency>
 
+    <!-- SiteMesh 3 (Jakarta EE 10) -->
+    <dependency>
+      <groupId>org.sitemesh</groupId>
+      <artifactId>sitemesh</artifactId>
+      <version>3.2.1</version>
+    </dependency>
+
     <!-- JPA (Jakarta Persistence) + Hibernate -->
     <dependency>
       <groupId>org.hibernate.orm</groupId>

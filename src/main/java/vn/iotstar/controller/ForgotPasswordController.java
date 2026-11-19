@@ -3,14 +3,17 @@ package vn.iotstar.controller;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import vn.iotstar.form.ForgotForm;
 import vn.iotstar.service.OtpResult;
 import vn.iotstar.service.UserService;
 import vn.iotstar.service.impl.UserServiceImpl;
 import vn.iotstar.util.OtpMessages;
+import vn.iotstar.util.ValidationUtil;
 
 /** Quên mật khẩu: nhập email để nhận OTP. */
 @WebServlet(urlPatterns = "/forgot-password")
@@ -27,12 +30,14 @@ public class ForgotPasswordController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        String email = req.getParameter("email") == null ? "" : req.getParameter("email").trim();
-        if (email.isEmpty()) {
-            req.setAttribute("alert", "Vui lòng nhập email");
+        ForgotForm form = new ForgotForm(req.getParameter("email"));
+        Map<String, String> errors = ValidationUtil.validate(form);
+        if (!errors.isEmpty()) {
+            req.setAttribute("errors", errors);
             req.getRequestDispatcher(VIEW).forward(req, resp);
             return;
         }
+        String email = form.getEmail();
         OtpResult r = service.sendOtp(email, "RESET");
         if (r == OtpResult.MAIL_ERROR || r == OtpResult.TOO_SOON) {
             req.setAttribute("alert", OtpMessages.of(r));

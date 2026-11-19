@@ -1,64 +1,58 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib prefix="f" tagdir="/WEB-INF/tags" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Video của tôi</title>
 </head>
 <body>
-<%@ include file="/WEB-INF/views/_topbar.jspf" %>
-<main class="wrap">
-  <div class="toolbar">
-    <h1 style="flex:1;margin:0">Video của tôi <span class="muted" style="font-size:1rem">(${total})</span></h1>
-    <a class="btn" href="${pageContext.request.contextPath}/video/add">Thêm video</a>
-  </div>
-  <c:if test="${empty videos}"><div class="card muted">Bạn chưa có video nào.</div></c:if>
-  <div class="grid">
-  <c:forEach items="${videos}" var="v">
-    <c:if test="${not empty v.poster}"><c:url var="posterUrl" value="/image"><c:param name="fname" value="${v.poster}"/></c:url></c:if>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Video của tôi <span class="badge text-bg-secondary">${total}</span></h1>
+  <a class="btn btn-primary" href="${pageContext.request.contextPath}/video/add"><i class="bi bi-plus-circle"></i> Thêm video</a>
+</div>
+<c:if test="${empty videos}"><div class="alert alert-info">Bạn chưa có video nào.</div></c:if>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+<c:forEach items="${videos}" var="v">
+  <c:if test="${not empty v.poster}"><c:url var="posterUrl" value="/image"><c:param name="fname" value="${v.poster}"/></c:url></c:if>
     <c:url var="watchUrl" value="/watch"><c:param name="id" value="${v.id}"/></c:url>
-    <c:url var="editUrl" value="/video/edit"><c:param name="id" value="${v.id}"/></c:url>
-    <article class="vcard">
-      <a class="thumb-box" href="${watchUrl}" aria-label="Xem <c:out value='${v.title}'/>">
-        <c:choose>
-          <c:when test="${not empty v.poster}"><img src="${posterUrl}" alt=""></c:when>
-          <c:otherwise><span>Video</span></c:otherwise>
-        </c:choose>
-      </a>
-      <div class="body">
-        <h3><a href="${watchUrl}"><c:out value="${v.title}"/></a></h3>
-        <span class="meta">${v.views} lượt xem · ${v.createdDateText}</span>
-        <span class="meta"><c:out value="${v.category.catename}"/></span>
-        <div class="actions">
-          <span class="badge"><c:out value="${v.active ? 'Đang hiện' : 'Đã ẩn'}"/></span>
-          <span style="flex:1"></span>
-          <a class="btn secondary small" href="${editUrl}">Sửa</a>
-          <form class="inline" method="post" action="${pageContext.request.contextPath}/video/delete"
-                onsubmit="return confirm('Xóa video này?');">
-            <input type="hidden" name="id" value="${v.id}">
-            <button class="btn danger small" type="submit">Xóa</button>
-          </form>
-        </div>
+  <c:url var="editUrl" value="/video/edit"><c:param name="id" value="${v.id}"/></c:url>
+  <div class="col">
+    <article class="card h-100 shadow-sm">
+      <a class="video-thumb text-decoration-none text-muted" href="${watchUrl}" aria-label="Xem video">
+          <c:choose>
+            <c:when test="${not empty v.poster}"><img class="thumb-cover" src="${posterUrl}" alt=""></c:when>
+            <c:otherwise><i class="bi bi-play-circle fs-1"></i></c:otherwise>
+          </c:choose>
+        </a>
+      <div class="card-body">
+        <h2 class="card-title h6"><a href="${watchUrl}"><c:out value="${v.title}"/></a></h2>
+        <p class="card-text small text-muted mb-1"><i class="bi bi-eye"></i> ${v.views} · ${v.createdDateText}</p>
+        <c:if test="${v.category != null}"><span class="badge text-bg-light border"><c:out value="${v.category.catename}"/></span></c:if>
+        <span class="badge ${v.active ? 'text-bg-success' : 'text-bg-secondary'}"><c:out value="${v.active ? 'Đang hiện' : 'Đã ẩn'}"/></span>
+      </div>
+      <div class="card-footer bg-transparent d-flex gap-2 justify-content-end">
+        <a class="btn btn-outline-secondary btn-sm" href="${editUrl}"><i class="bi bi-pencil"></i> Sửa</a>
+        <form method="post" action="${pageContext.request.contextPath}/video/delete" onsubmit="return confirm('Xóa video này?');">
+          <input type="hidden" name="id" value="${v.id}">
+          <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Xóa</button>
+        </form>
       </div>
     </article>
-    <c:remove var="posterUrl"/>
-  </c:forEach>
   </div>
-
-  <c:if test="${totalPages > 1}">
-  <nav class="pager" aria-label="Phân trang">
-    <c:if test="${currentPage > 1}"><a href="?page=${currentPage - 1}">« Trước</a></c:if>
+  <c:remove var="posterUrl"/>
+</c:forEach>
+</div>
+<c:if test="${totalPages > 1}">
+<nav class="mt-4" aria-label="Phân trang">
+  <ul class="pagination justify-content-center">
+    <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage - 1}">« Trước</a></li>
     <c:forEach begin="1" end="${totalPages}" var="i">
-      <c:choose>
-        <c:when test="${i == currentPage}"><span class="current" aria-current="page">${i}</span></c:when>
-        <c:otherwise><a href="?page=${i}">${i}</a></c:otherwise>
-      </c:choose>
+      <li class="page-item ${i == currentPage ? 'active' : ''}"><a class="page-link" href="?page=${i}">${i}</a></li>
     </c:forEach>
-    <c:if test="${currentPage < totalPages}"><a href="?page=${currentPage + 1}">Sau »</a></c:if>
-  </nav>
-  </c:if>
-</main>
+    <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage + 1}">Sau »</a></li>
+  </ul>
+</nav>
+</c:if>
 </body>
 </html>

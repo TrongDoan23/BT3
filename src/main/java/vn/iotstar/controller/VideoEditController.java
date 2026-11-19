@@ -1,6 +1,8 @@
 package vn.iotstar.controller;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -9,13 +11,14 @@ import jakarta.servlet.http.*;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.User;
 import vn.iotstar.entity.Video;
+import vn.iotstar.form.VideoForm;
 import vn.iotstar.service.CategoryService;
 import vn.iotstar.service.VideoService;
 import vn.iotstar.service.impl.CategoryServiceImpl;
 import vn.iotstar.service.impl.VideoServiceImpl;
 import vn.iotstar.util.Constant;
 import vn.iotstar.util.UploadUtil;
-import vn.iotstar.util.VideoUtil;
+import vn.iotstar.util.ValidationUtil;
 
 @WebServlet(urlPatterns = { "/video/edit" })
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024L * 1024 * 200, maxRequestSize = 1024L * 1024 * 220)
@@ -30,13 +33,13 @@ public class VideoEditController extends HttpServlet {
         return v != null && account != null && (account.getRoleid() == 1 || v.getUser().getId() == account.getId());
     }
 
-    private void showForm(HttpServletRequest req, HttpServletResponse resp, Video v, String error)
+    private void showForm(HttpServletRequest req, HttpServletResponse resp, Video v, Map<String, String> errors)
             throws ServletException, IOException {
         req.setAttribute("video", v);
         req.setAttribute("formAction", req.getContextPath() + "/video/edit");
         req.setAttribute("formTitle", "Sửa video");
         req.setAttribute("categories", categoryService.getAll());
-        if (error != null) req.setAttribute("alert", error);
+        if (errors != null) req.setAttribute("errors", errors);
         req.getRequestDispatcher(VIEW).forward(req, resp);
     }
 
@@ -69,44 +72,40 @@ public class VideoEditController extends HttpServlet {
             return;
         }
 
-        String title;
-        String link;
-        Part videoPart;
-        Part posterPart;
+        VideoForm form = new VideoForm(req.getParameter("title"), req.getParameter("description"),
+                req.getParameter("videoLink"));
+        Map<String, String> errors = new LinkedHashMap<>(ValidationUtil.validate(form));
+
+        Part videoPart = null;
+        Part posterPart = null;
         try {
-            title = trim(req.getParameter("title"));
-            link = trim(req.getParameter("videoLink"));
             videoPart = req.getPart("videoFile");
             posterPart = req.getPart("poster");
         } catch (IllegalStateException e) {
-            showForm(req, resp, old, "File quá lớn (video tối đa 200MB).");
+            errors.put("videoFile", "File quá lớn (video tối đa 200MB)");
+        }
+        if (!errors.containsKey("videoFile") && !UploadUtil.isAllowed(videoPart, UploadUtil.VIDEO_EXT)) {
+            errors.put("videoFile", "Video chỉ nhận định dạng mp4, webm, ogg");
+        }
+        if (!UploadUtil.isAllowed(posterPart, UploadUtil.IMAGE_EXT)) {
+            errors.put("poster", "Ảnh chỉ nhận định dạng png, jpg, jpeg, gif, webp");
+        }
+        if (!errors.isEmpty()) {
+            showForm(req, resp, old, errors);
             return;
         }
-        if (title.isEmpty()) {
-            showForm(req, resp, old, "Tiêu đề không được rỗng");
-            return;
-        }
-        boolean hasFile = videoPart != null && videoPart.getSize() > 0;
 
-        String newVideoUrl = null; // null = giữ nguyên
-        if (hasFile) {
+        String newVideoUrl = null; // null = giữ nguyên video cũ
+        if (UploadUtil.hasFile(videoPart)) {
             newVideoUrl = UploadUtil.saveVideo(videoPart);
-            if (newVideoUrl == null) {
-                showForm(req, resp, old, "Định dạng video không hợp lệ (chỉ nhận mp4, webm, ogg).");
-                return;
-            }
-        } else if (!link.isEmpty()) {
-            if (!VideoUtil.isHttp(link)) {
-                showForm(req, resp, old, "Link video phải bắt đầu bằng http:// hoặc https://");
-                return;
-            }
-            newVideoUrl = link;
+        } else if (!form.getVideoLink().isEmpty()) {
+            newVideoUrl = form.getVideoLink();
         }
 
         Video in = new Video();
         in.setId(old.getId());
-        in.setTitle(title);
-        in.setDescription(trim(req.getParameter("description")));
+        in.setTitle(form.getTitle());
+        in.setDescription(form.getDescription());
         in.setActive("on".equals(req.getParameter("active")));
         in.setVideoUrl(newVideoUrl);
         in.setPoster(UploadUtil.saveImage(posterPart)); // null = giữ ảnh cũ
@@ -120,9 +119,5 @@ public class VideoEditController extends HttpServlet {
 
         videoService.edit(in);
         resp.sendRedirect(req.getContextPath() + "/video");
-    }
-
-    private static String trim(String s) {
-        return s == null ? "" : s.trim();
     }
 }

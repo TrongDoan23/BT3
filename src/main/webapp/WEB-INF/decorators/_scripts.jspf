@@ -1,0 +1,22 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Validation phía client (Bootstrap): form.needs-validation
+(function () {
+  'use strict';
+  document.querySelectorAll('form.needs-validation').forEach(function (form) {
+    // Ô nhập lại mật khẩu phải khớp: <input data-match="password">
+    form.querySelectorAll('[data-match]').forEach(function (inp) {
+      var other = form.querySelector('#' + inp.dataset.match);
+      var check = function () { inp.setCustomValidity(other && inp.value === other.value ? '' : 'mismatch'); };
+      inp.addEventListener('input', check);
+      if (other) other.addEventListener('input', check);
+      check();
+    });
+    form.addEventListener('submit', function (e) {
+      var skip = e.submitter && e.submitter.hasAttribute('formnovalidate');
+      if (!skip && !form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+      form.classList.add('was-validated');
+    }, false);
+  });
+})();
+</script>

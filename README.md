@@ -30,3 +30,13 @@ DB cũ: chạy `sql/update_bai02.sql`. DB mới: chạy `sql/JPAShopping.sql`.
 - CRUD: `/video/add`, `/video/edit?id=`, `/video/delete` (POST). Chỉ chủ video hoặc admin được sửa/xóa.
 - Upload bằng Multipart (`@MultipartConfig` + `Part`): video tối đa 200MB (mp4, webm, ogg), ảnh đại diện (png, jpg, gif, webp). File lưu ở `Constant.DIR`, phát qua `/media` (hỗ trợ Range để tua), ảnh qua `/image`.
 - Demo upload theo tài liệu: `/multiPartServlet`.
+
+## Bài 03 (tiếp) – SiteMesh 3 + Bootstrap + Validation
+- **SiteMesh 3** (`org.sitemesh:sitemesh:3.2.1`, bản Jakarta EE 10): filter khai báo trong `WEB-INF/web.xml`, ánh xạ decorator trong `WEB-INF/sitemesh3.xml`.
+  - `/WEB-INF/decorators/web.jsp`: layout trang người dùng (navbar + footer, **Bootstrap 5.3** qua CDN)
+  - `/WEB-INF/decorators/admin.jsp`: layout quản trị (`/admin/*`, có sidebar)
+  - `/WEB-INF/decorators/auth.jsp`: layout card ở giữa (login, register, verify-otp, forgot-password, reset-password)
+  - `/static/*`, `/image`, `/media` không bị decorate. Các trang JSP chỉ chứa nội dung (`<title>` + `<body>`), phần khung do decorator cung cấp.
+- **Validation** cho login, register, forgot password, reset password, verify OTP, thêm/sửa Category, thêm/sửa Video:
+  - Server: Bean Validation (Hibernate Validator) trên các lớp trong `vn.iotstar.form` + `ValidationUtil`; kiểm tra trùng tài khoản/email/số điện thoại/tên danh mục, định dạng và dung lượng file upload; lỗi hiển thị dưới từng ô nhập (`WEB-INF/tags/field.tag`).
+  - Client: HTML5 + Bootstrap `needs-validation` (required, pattern, minlength, kiểm tra nhập lại mật khẩu).

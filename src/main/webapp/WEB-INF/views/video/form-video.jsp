@@ -1,59 +1,61 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ taglib uri="jakarta.tags.functions" prefix="fn" %>
+<%@ taglib prefix="f" tagdir="/WEB-INF/tags" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title><c:out value="${formTitle}"/></title>
 </head>
 <body>
-<%@ include file="/WEB-INF/views/_topbar.jspf" %>
-<main class="wrap"><div class="card wide">
-  <h1><c:out value="${formTitle}"/></h1>
-  <c:if test="${alert != null}"><p class="alert"><c:out value="${alert}"/></p></c:if>
-  <c:set var="titleVal" value="${not empty param.title ? param.title : video.title}"/>
-  <c:set var="descVal" value="${not empty param.description ? param.description : video.description}"/>
-  <c:set var="isActive" value="${video == null ? true : video.active}"/>
-  <c:set var="linkVal" value="${not empty param.videoLink ? param.videoLink : (video != null && fn:startsWith(video.videoUrl, 'http') ? video.videoUrl : '')}"/>
-  <form action="${formAction}" method="post" enctype="multipart/form-data">
+<div class="row justify-content-center"><div class="col-lg-8">
+<div class="card shadow-sm"><div class="card-body p-4">
+  <h1 class="h4 mb-4"><c:out value="${formTitle}"/></h1>
+  <c:set var="useParam" value="${not empty errors || video == null}"/>
+  <c:set var="titleVal" value="${useParam ? param.title : video.title}"/>
+  <c:set var="descVal" value="${useParam ? param.description : video.description}"/>
+  <c:set var="linkVal" value="${useParam ? param.videoLink : (fn:startsWith(video.videoUrl, 'http') ? video.videoUrl : '')}"/>
+  <c:set var="cateVal" value="${useParam ? param.cateid : video.category.cateid}"/>
+  <c:set var="isActive" value="${not empty errors ? param.active == 'on' : (video == null ? true : video.active)}"/>
+  <form action="${formAction}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
     <c:if test="${video != null}"><input type="hidden" name="id" value="${video.id}"></c:if>
 
-    <label for="title">Tiêu đề</label>
-    <input type="text" id="title" name="title" value="<c:out value='${titleVal}'/>" required>
+    <f:field name="title" label="Tiêu đề" value="${titleVal}" isRequired="true" attrs='maxlength="255"' msg="Vui lòng nhập tiêu đề (tối đa 255 ký tự)"/>
 
-    <label for="description">Mô tả</label>
-    <textarea id="description" name="description"><c:out value="${descVal}"/></textarea>
+    <div class="mb-3">
+      <label for="description" class="form-label fw-semibold">Mô tả</label>
+      <textarea id="description" name="description" rows="4" maxlength="2000" class="form-control${not empty errors.description ? ' is-invalid' : ''}"><c:out value="${descVal}"/></textarea>
+      <div class="invalid-feedback"><c:out value="${not empty errors.description ? errors.description : 'Mô tả tối đa 2000 ký tự'}"/></div>
+    </div>
 
-    <label for="cateid">Danh mục</label>
-    <select id="cateid" name="cateid">
-      <option value="">-- Không chọn --</option>
-      <c:forEach items="${categories}" var="c">
-        <option value="${c.cateid}" ${(not empty param.cateid ? param.cateid == c.cateid : video.category.cateid == c.cateid) ? 'selected' : ''}><c:out value="${c.catename}"/></option>
-      </c:forEach>
-    </select>
+    <div class="mb-3">
+      <label for="cateid" class="form-label fw-semibold">Danh mục</label>
+      <select id="cateid" name="cateid" class="form-select">
+        <option value="">-- Không chọn --</option>
+        <c:forEach items="${categories}" var="c">
+          <option value="${c.cateid}" ${cateVal == c.cateid ? 'selected' : ''}><c:out value="${c.catename}"/></option>
+        </c:forEach>
+      </select>
+    </div>
 
-    <label for="videoFile">File video (mp4, webm, ogg – tối đa 200MB)</label>
-    <input type="file" id="videoFile" name="videoFile" accept="video/mp4,video/webm,video/ogg">
-    <label for="videoLink">Hoặc link video (YouTube hoặc link .mp4)</label>
-    <input type="text" id="videoLink" name="videoLink" placeholder="https://www.youtube.com/watch?v=..." value="<c:out value='${linkVal}'/>">
-    <c:if test="${video != null}"><p class="hint">Để trống cả hai ô để giữ video hiện tại.</p></c:if>
+    <f:field name="videoFile" label="File video" type="file" attrs='accept="video/mp4,video/webm,video/ogg"' hint="mp4, webm, ogg – tối đa 200MB" msg="Video chỉ nhận mp4, webm, ogg"/>
+    <f:field name="videoLink" label="Hoặc link video (YouTube / .mp4)" type="text" value="${linkVal}" attrs='maxlength="500" pattern="https?://\S+" placeholder="https://www.youtube.com/watch?v=..."' msg="Link phải bắt đầu bằng http:// hoặc https://" hint="${video != null ? 'Để trống cả hai ô để giữ video hiện tại.' : 'Bắt buộc chọn file hoặc nhập link.'}"/>
 
-    <label for="poster">Ảnh đại diện</label>
     <c:if test="${video != null && not empty video.poster}">
       <c:url var="posterUrl" value="/image"><c:param name="fname" value="${video.poster}"/></c:url>
-      <p><img class="thumb" style="width:160px;height:90px" src="${posterUrl}" alt="Ảnh hiện tại"></p>
+      <img class="img-thumbnail mb-2" style="max-width:200px" src="${posterUrl}" alt="Ảnh hiện tại">
     </c:if>
-    <input type="file" id="poster" name="poster" accept="image/*">
+    <f:field name="poster" label="Ảnh đại diện" type="file" attrs='accept="image/*"' msg="Ảnh chỉ nhận png, jpg, gif, webp"/>
 
-    <label class="check"><input type="checkbox" name="active" ${isActive ? 'checked' : ''}> Hiển thị công khai</label>
+    <div class="form-check form-switch mb-4">
+      <input class="form-check-input" type="checkbox" role="switch" id="active" name="active" ${isActive ? 'checked' : ''}>
+      <label class="form-check-label" for="active">Hiển thị công khai</label>
+    </div>
 
-    <p>
-      <button type="submit" class="btn">Lưu</button>
-      <a class="btn secondary" href="${pageContext.request.contextPath}/video">Hủy</a>
-    </p>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu</button>
+    <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/video">Hủy</a>
   </form>
-</div></main>
+</div></div>
+</div></div>
 </body>
 </html>

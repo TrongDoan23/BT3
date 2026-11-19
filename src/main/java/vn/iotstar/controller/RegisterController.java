@@ -3,14 +3,17 @@ package vn.iotstar.controller;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import vn.iotstar.form.RegisterForm;
 import vn.iotstar.service.OtpResult;
 import vn.iotstar.service.UserService;
 import vn.iotstar.service.impl.UserServiceImpl;
 import vn.iotstar.util.Constant;
+import vn.iotstar.util.ValidationUtil;
 
 @WebServlet(urlPatterns = "/register")
 public class RegisterController extends HttpServlet {
@@ -33,44 +36,41 @@ public class RegisterController extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         req.setCharacterEncoding("UTF-8");
 
-        String username = trim(req.getParameter("username"));
-        String password = req.getParameter("password");
-        String email = trim(req.getParameter("email"));
-        String fullname = trim(req.getParameter("fullname"));
-        String phone = trim(req.getParameter("phone"));
+        RegisterForm form = new RegisterForm(req.getParameter("username"), req.getParameter("fullname"),
+                req.getParameter("email"), req.getParameter("phone"), req.getParameter("password"),
+                req.getParameter("confirm"));
+        Map<String, String> errors = ValidationUtil.validate(form);
 
-        String alert = null;
-        if (username.isEmpty() || password == null || password.isEmpty() || email.isEmpty()) {
-            alert = "Vui lòng nhập tài khoản, email và mật khẩu";
-        } else if (password.length() < 6) {
-            alert = "Mật khẩu phải có ít nhất 6 ký tự";
-        } else if (service.checkExistEmail(email)) {
-            alert = "Email đã tồn tại!";
-        } else if (service.checkExistUsername(username)) {
-            alert = "Tài khoản đã tồn tại!";
-        } else if (!phone.isEmpty() && service.checkExistPhone(phone)) {
-            alert = "Số điện thoại đã tồn tại!";
+        if (!errors.containsKey("confirm") && !form.getPassword().equals(form.getConfirm())) {
+            errors.put("confirm", "Mật khẩu nhập lại không khớp");
         }
-        if (alert != null) {
-            req.setAttribute("alert", alert);
+        // Kiểm tra trùng (chỉ khi field hợp lệ)
+        if (!errors.containsKey("username") && service.checkExistUsername(form.getUsername())) {
+            errors.put("username", "Tài khoản đã tồn tại!");
+        }
+        if (!errors.containsKey("email") && service.checkExistEmail(form.getEmail())) {
+            errors.put("email", "Email đã tồn tại!");
+        }
+        if (!errors.containsKey("phone") && !form.getPhone().isEmpty() && service.checkExistPhone(form.getPhone())) {
+            errors.put("phone", "Số điện thoại đã tồn tại!");
+        }
+        if (!errors.isEmpty()) {
+            req.setAttribute("errors", errors);
             req.getRequestDispatcher(REGISTER).forward(req, resp);
             return;
         }
 
-        boolean ok = service.register(username, password, email, fullname, phone);
+        boolean ok = service.register(form.getUsername(), form.getPassword(), form.getEmail(),
+                form.getFullname(), form.getPhone());
         if (ok) {
             // Gửi OTP kích hoạt qua email rồi chuyển sang trang nhập OTP
-            OtpResult r = service.sendOtp(email, "ACTIVATE");
+            OtpResult r = service.sendOtp(form.getEmail(), "ACTIVATE");
             String flag = (r == OtpResult.OK) ? "sent=1" : "mailfail=1";
             resp.sendRedirect(req.getContextPath() + "/verify-otp?" + flag
-                    + "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8));
+                    + "&email=" + URLEncoder.encode(form.getEmail(), StandardCharsets.UTF_8));
         } else {
             req.setAttribute("alert", "System error!");
             req.getRequestDispatcher(REGISTER).forward(req, resp);
         }
-    }
-
-    private static String trim(String s) {
-        return s == null ? "" : s.trim();
     }
 }

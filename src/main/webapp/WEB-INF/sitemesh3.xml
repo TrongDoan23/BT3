@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+  <!-- Layout mặc định (trang người dùng) -->
+  <mapping path="/*" decorator="/WEB-INF/decorators/web.jsp"/>
+
+  <!-- Layout quản trị (sidebar) -->
+  <mapping path="/admin/*" decorator="/WEB-INF/decorators/admin.jsp"/>
+
+  <!-- Layout cho trang đăng nhập / đăng ký / quên mật khẩu -->
+  <mapping path="/login" decorator="/WEB-INF/decorators/auth.jsp"/>
+  <mapping path="/register" decorator="/WEB-INF/decorators/auth.jsp"/>
+  <mapping path="/verify-otp" decorator="/WEB-INF/decorators/auth.jsp"/>
+  <mapping path="/forgot-password" decorator="/WEB-INF/decorators/auth.jsp"/>
+  <mapping path="/reset-password" decorator="/WEB-INF/decorators/auth.jsp"/>
+
+  <!-- Không decorate file tĩnh, ảnh, video -->
+  <mapping path="/static/*" exclude="true"/>
+  <mapping path="/image" exclude="true"/>
+  <mapping path="/media" exclude="true"/>
+</sitemesh>

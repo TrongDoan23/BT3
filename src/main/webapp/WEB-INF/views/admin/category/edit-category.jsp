@@ -1,34 +1,28 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ taglib uri="jakarta.tags.functions" prefix="fn" %>
+<%@ taglib prefix="f" tagdir="/WEB-INF/tags" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sửa danh mục</title>
 </head>
 <body>
-<%@ include file="/WEB-INF/views/_topbar.jspf" %>
-<main class="wrap"><div class="card">
-  <h1>Sửa danh mục</h1>
-  <c:if test="${alert != null}"><p class="alert"><c:out value="${alert}"/></p></c:if>
-  <c:choose>
-    <c:when test="${fn:startsWith(category.icon, 'http')}"><c:set var="imgUrl" value="${category.icon}"/></c:when>
-    <c:otherwise><c:url var="imgUrl" value="/image"><c:param name="fname" value="${category.icon}"/></c:url></c:otherwise>
-  </c:choose>
-  <form action="${pageContext.request.contextPath}/admin/category/edit" method="post" enctype="multipart/form-data">
+<h1 class="h3 mb-3">Sửa danh mục</h1>
+<c:set var="cate" value="${category}"/>
+<c:choose>
+<c:when test="${fn:startsWith(cate.icon, 'http')}"><c:set var="imgUrl" value="${cate.icon}"/></c:when>
+<c:otherwise><c:url var="imgUrl" value="/image"><c:param name="fname" value="${cate.icon}"/></c:url></c:otherwise>
+        </c:choose>
+<div class="card shadow-sm" style="max-width:640px"><div class="card-body p-4">
+  <form action="${pageContext.request.contextPath}/admin/category/edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
     <input type="hidden" name="cateid" value="${category.cateid}">
-    <label for="catename">Tên danh mục</label>
-    <input type="text" id="catename" name="catename" value="<c:out value='${category.catename}'/>" required>
-    <p><img class="thumb" src="${imgUrl}" alt="Ảnh hiện tại"></p>
-    <label for="icon">Ảnh đại diện mới (bỏ trống để giữ ảnh cũ)</label>
-    <input type="file" id="icon" name="icon" accept="image/*">
-    <p>
-      <button type="submit" class="btn">Lưu thay đổi</button>
-      <a class="btn secondary" href="${pageContext.request.contextPath}/admin/category/list">Hủy</a>
-    </p>
+    <f:field name="catename" label="Tên danh mục" value="${empty errors ? category.catename : param.catename}" isRequired="true" attrs='maxlength="255"' msg="Vui lòng nhập tên danh mục (tối đa 255 ký tự)"/>
+    <img class="img-thumbnail mb-2" style="max-width:160px" src="${imgUrl}" alt="Ảnh hiện tại">
+    <f:field name="icon" label="Ảnh đại diện mới" type="file" attrs='accept="image/*"' hint="Bỏ trống để giữ ảnh cũ. png, jpg, gif, webp – tối đa 5MB" msg="Ảnh chỉ nhận png, jpg, gif, webp"/>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu</button>
+    <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/admin/category/list">Hủy</a>
   </form>
-</div></main>
+</div></div>
 </body>
 </html>
