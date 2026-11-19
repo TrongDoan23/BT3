@@ -10,21 +10,32 @@ import java.nio.file.StandardCopyOption;
 import jakarta.servlet.http.Part;
 
 public class UploadUtil {
+    public static final String IMAGE_EXT = "png|jpg|jpeg|gif|webp";
+    public static final String VIDEO_EXT = "mp4|webm|ogg";
+
     private UploadUtil() {}
 
-    /** Lưu file ảnh vào thư mục upload, trả về tên file mới; null nếu không có file hợp lệ. */
     public static String saveImage(Part part) throws IOException {
+        return save(part, IMAGE_EXT);
+    }
+
+    public static String saveVideo(Part part) throws IOException {
+        return save(part, VIDEO_EXT);
+    }
+
+    /** Lưu file vào thư mục upload với tên mới (timestamp). Trả về tên file, hoặc null nếu không có file / sai định dạng. */
+    public static String save(Part part, String allowedExt) throws IOException {
         if (part == null || part.getSize() == 0 || part.getSubmittedFileName() == null) {
             return null;
         }
         String original = Paths.get(part.getSubmittedFileName()).getFileName().toString();
         int idx = original.lastIndexOf('.');
         String ext = idx >= 0 ? original.substring(idx + 1).toLowerCase() : "";
-        if (!ext.matches("png|jpg|jpeg|gif|webp")) {
+        if (!ext.matches(allowedExt)) {
             return null;
         }
         Files.createDirectories(Paths.get(Constant.DIR));
-        String name = System.currentTimeMillis() + "." + ext;
+        String name = System.nanoTime() + "." + ext;
         try (InputStream in = part.getInputStream()) {
             Files.copy(in, Paths.get(Constant.DIR, name), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -32,6 +43,11 @@ public class UploadUtil {
     }
 
     public static void deleteImage(String fileName) {
+        deleteFile(fileName);
+    }
+
+    /** Xóa file trong thư mục upload (bỏ qua link http và ảnh mặc định). */
+    public static void deleteFile(String fileName) {
         if (fileName == null || fileName.isBlank() || fileName.startsWith("http")
                 || fileName.equals(Constant.DEFAULT_ICON)) {
             return;

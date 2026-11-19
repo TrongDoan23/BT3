@@ -2,6 +2,8 @@ package vn.iotstar.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 
 import jakarta.persistence.*;
@@ -60,6 +62,10 @@ public class User implements Serializable {
 
     @Column(name = "remember_token", length = 100)
     private String rememberToken;
+
+    // 1 user có n video
+    @OneToMany(mappedBy = "user")
+    private List<Video> videos = new ArrayList<>();
 
     public boolean isEnabled() {
         return active == null || active;
@@ -186,5 +192,13 @@ public class User implements Serializable {
 
     public void setRememberToken(String rememberToken) {
         this.rememberToken = rememberToken;
+    }
+
+    public List<Video> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(List<Video> videos) {
+        this.videos = videos;
     }
 }

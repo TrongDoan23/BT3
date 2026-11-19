@@ -26,6 +26,21 @@ CREATE TABLE Category(
   icons nvarchar(255) NULL
 );
 GO
+CREATE TABLE Videos(
+  id int IDENTITY(1,1) PRIMARY KEY,
+  title nvarchar(255) NOT NULL,
+  description nvarchar(max) NULL,
+  poster nvarchar(255) NULL,
+  video_url nvarchar(500) NULL,
+  views int NOT NULL DEFAULT 0,
+  active bit NOT NULL DEFAULT 1,
+  created_date datetime2 NULL,
+  user_id int NOT NULL,
+  cate_id int NULL,
+  CONSTRAINT FK_Videos_Users FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+  CONSTRAINT FK_Videos_Category FOREIGN KEY (cate_id) REFERENCES Category(cate_id) ON DELETE SET NULL
+);
+GO
 -- roleid: 1 = admin, 2 = manager, 5 = người dùng thường
 -- Mật khẩu mẫu ở dạng thường; sẽ tự động được hash (BCrypt) ở lần đăng nhập đầu tiên.
 INSERT INTO Users(email,username,fullname,[password],roleid,phone,createddate,active) VALUES

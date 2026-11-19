@@ -1,2 +1,2 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<c:redirect url="/waiting"/>
+<c:redirect url="/home"/>

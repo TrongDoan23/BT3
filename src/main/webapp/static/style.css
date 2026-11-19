@@ -27,3 +27,27 @@ table { width:100%; border-collapse:collapse; }
 th, td { padding:10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:middle; }
 img.thumb { width:80px; height:80px; object-fit:cover; border-radius:6px; background:var(--line); }
 .muted { color:var(--muted); }
+
+/* ---- Video ---- */
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+.vcard { background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; }
+.vcard .thumb-box { aspect-ratio:16/9; background:var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); }
+.vcard .thumb-box img { width:100%; height:100%; object-fit:cover; display:block; }
+.vcard .body { padding:12px; display:flex; flex-direction:column; gap:4px; flex:1; }
+.vcard h3 { margin:0; font-size:1rem; line-height:1.3; }
+.vcard h3 a { color:var(--ink); text-decoration:none; }
+.vcard h3 a:hover { color:var(--brand); text-decoration:underline; }
+.vcard .meta { font-size:.85rem; color:var(--muted); }
+.vcard .actions { display:flex; gap:8px; margin-top:auto; padding-top:8px; align-items:center; }
+.badge { display:inline-block; padding:1px 8px; border-radius:999px; font-size:.75rem; border:1px solid var(--line); color:var(--muted); }
+.btn.small { padding:5px 10px; font-size:.85rem; }
+.btn.danger { background:var(--danger); }
+form.inline { display:inline; margin:0; }
+.pager { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+.pager a, .pager span { padding:6px 12px; border:1px solid var(--line); border-radius:6px; text-decoration:none; }
+.pager .current { background:var(--brand); color:#fff; border-color:var(--brand); }
+.player { width:100%; aspect-ratio:16/9; background:#000; border:0; border-radius:8px; display:block; }
+textarea { width:100%; min-height:100px; padding:9px 10px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); font:inherit; }
+select { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); font:inherit; }
+.wide { max-width:720px; margin:0 auto; }
+.hint { font-size:.85rem; color:var(--muted); margin:4px 0 0; }

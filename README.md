@@ -23,3 +23,10 @@ Tài khoản mẫu (mật khẩu 123456): `admin` (roleid 1), `manager` (2), `us
 
 Cấu hình email: sửa `src/main/resources/mail.properties` hoặc đặt biến môi trường `MAIL_USER`, `MAIL_PASSWORD` (Gmail dùng App password). Nếu chưa cấu hình, OTP được in ra console Tomcat để test.
 DB cũ: chạy `sql/update_bai02.sql`. DB mới: chạy `sql/JPAShopping.sql`.
+
+## Bài 03 – Videos
+- Bảng `Videos` (1 user – n videos, tùy chọn thuộc 1 category). DB cũ: chạy `sql/update_bai03.sql` (sẽ xóa bảng Videos cũ). DB mới: `sql/JPAShopping.sql`.
+- `/home`: 10 video mới nhất · `/video`: video của user đang đăng nhập, 6 video/trang (`?page=n`) · `/watch?id=`: chi tiết + phát video (file upload, link YouTube hoặc link mp4).
+- CRUD: `/video/add`, `/video/edit?id=`, `/video/delete` (POST). Chỉ chủ video hoặc admin được sửa/xóa.
+- Upload bằng Multipart (`@MultipartConfig` + `Part`): video tối đa 200MB (mp4, webm, ogg), ảnh đại diện (png, jpg, gif, webp). File lưu ở `Constant.DIR`, phát qua `/media` (hỗ trợ Range để tua), ảnh qua `/image`.
+- Demo upload theo tài liệu: `/multiPartServlet`.
